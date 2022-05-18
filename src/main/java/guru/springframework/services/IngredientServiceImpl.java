@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by jt on 6/28/17.
@@ -111,5 +113,32 @@ public class IngredientServiceImpl implements IngredientService {
             return ingredientToIngredientCommand.convert(savedIngredientOptional.get());
         }
 
+    }
+
+    @Override
+    public void deleteById(Long recipeId, Long idToDelete) {
+        Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
+
+        if(!recipeOptional.isPresent()){
+
+            //todo toss error if not found!
+            log.error("Recipe not found for id: " + recipeId);
+        } else {
+            Recipe recipe = recipeOptional.get();
+
+            Optional<Ingredient> ingredientOptional = recipe
+                    .getIngredients()
+                    .stream()
+                    .filter(ingredient -> ingredient.getId().equals(recipeId))
+                    .findFirst();
+
+            if (ingredientOptional.isPresent()) {
+                Ingredient ingredientFound = ingredientOptional.get();
+                ingredientFound.setRecipe(null); //it causes Hibernate to delete it from data base
+                recipe.getIngredients().remove(ingredientFound);
+            }
+
+            Recipe savedRecipe = recipeRepository.save(recipe);
+        }
     }
 }
