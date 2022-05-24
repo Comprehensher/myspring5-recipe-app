@@ -54,7 +54,7 @@ public class RecipeController {
                 log.debug(objectError.toString());
             });
 
-            return RECIPE_RECIPEFORM_URL;
+            return RECIPE_RECIPEFORM_URL; // and we will pass the bindingResult to #fields.error so as we can show errors in the view
         }
 
         RecipeCommand savedCommand = recipeService.saveRecipeCommand(command);
